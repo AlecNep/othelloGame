@@ -855,31 +855,42 @@ public ArrayList<OthelloGameBoard> generateAllPossibleMoves(char player) {
 		return bestMove;
 	}*/
 
-	public int miniMax(OthelloGameBoard curBoard, int maxDepth, char startingPlayer){
+	public OthelloGameBoard miniMax(OthelloGameBoard curBoard, int maxDepth, char startingPlayer){
 		return miniMax(curBoard, maxDepth, startingPlayer, startingPlayer);
 		//return miniMax(curBoard, startingPlayer, startingPlayer);
 	}
 
-	private int miniMax(OthelloGameBoard curBoard, int depth, char original, char current){
-		if (curBoard.gameOver() || depth == 0) {
-			return curBoard.heuristic();
+	private OthelloGameBoard miniMax(OthelloGameBoard curBoard, int depth, char original, char current){
+		ArrayList<OthelloGameBoard> nextMoves = curBoard.generateAllPossibleMoves(current);
+		if (curBoard.gameOver() || depth == 0 || nextMoves.isEmpty()) {
+			return curBoard;
 		}
 		else {
-			ArrayList<OthelloGameBoard> nextMoves = curBoard.generateAllPossibleMoves(current);
-
+			OthelloGameBoard bestBoard = nextMoves.get(0);
+			OthelloGameBoard nextBoard;
+			
+			
 			if(original == current){ //maximizing
 				int val = (int)Double.NEGATIVE_INFINITY;
 				for(int i=0; i<nextMoves.size(); i++){
-					val = Math.max(val, miniMax(nextMoves.get(i), depth-1, original, oppositePlayer(current)));
+					nextBoard = miniMax(nextMoves.get(i), depth-1, original, oppositePlayer(current));
+					if(nextBoard.heuristic() > val){
+						bestBoard = nextBoard;
+						
+					}
+					//val = Math.max(val, miniMax(nextMoves.get(i), depth-1, original, oppositePlayer(current)));
 				}
-				return val;
+				return bestBoard;
 			}
-			else{ // minimizing
+			else{ //minimizing
 				int val = (int)Double.POSITIVE_INFINITY;
 				for(int i=0; i<nextMoves.size(); i++){
-					val = Math.min(val, miniMax(nextMoves.get(i), depth-1, original, oppositePlayer(current)));
-				}
-				return val;
+					nextBoard = miniMax(nextMoves.get(i), depth-1, original, oppositePlayer(current));
+					if(nextBoard.heuristic() < val){
+						bestBoard = nextBoard;
+						
+					}				}
+				return bestBoard;
 			}
 		}
 	}
@@ -922,6 +933,7 @@ public ArrayList<OthelloGameBoard> generateAllPossibleMoves(char player) {
 	}
 
 	public int heuristic(){
+		
 		return 0;
 	}
 	
