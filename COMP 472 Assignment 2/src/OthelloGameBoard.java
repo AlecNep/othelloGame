@@ -58,8 +58,8 @@ public class OthelloGameBoard {
 	
 	public boolean gameOver() {
 		// check if both players can make a move 
-		PriorityQueue<OthelloGameBoard> blackMoves = generateAllPossibleMoves('B');
-		PriorityQueue<OthelloGameBoard> whiteMoves = generateAllPossibleMoves('W');
+		PriorityQueue<OthelloGameBoard> blackMoves = greedyGenerateAllPossibleMoves('B');
+		PriorityQueue<OthelloGameBoard> whiteMoves = greedyGenerateAllPossibleMoves('W');
 		
 		if (blackMoves.size() == 0 && whiteMoves.size() == 0) {
 			// no possible moves left - count number of tiles and declare the winner
@@ -98,7 +98,7 @@ public class OthelloGameBoard {
 	}
 	
 	public boolean hasAvailableMoves(char turn) {
-		PriorityQueue<OthelloGameBoard> moves = generateAllPossibleMoves(turn);
+		PriorityQueue<OthelloGameBoard> moves = greedyGenerateAllPossibleMoves(turn);
 		
 		return (moves.size() != 0);
 	}
@@ -632,7 +632,7 @@ public class OthelloGameBoard {
 		return newState;
 	}
 	
-	public PriorityQueue<OthelloGameBoard> generateAllPossibleMoves(char player) {
+	public PriorityQueue<OthelloGameBoard> greedyGenerateAllPossibleMoves(char player) {
 		
 		//ArrayList<OthelloGameBoard> states  = new ArrayList<OthelloGameBoard>();
       	// comparator for priority queue 
@@ -735,6 +735,194 @@ public class OthelloGameBoard {
 			}
 		}
 		return states;
+	}
+	
+public ArrayList<OthelloGameBoard> generateAllPossibleMoves(char player) {
+		
+      	// stores the open list for Best-First Search and A* as a priority queue
+        ArrayList<OthelloGameBoard> states = new ArrayList<OthelloGameBoard>();
+		
+		// black always has the first move
+		// algorithm: scan the board sequentially for a white tile		
+		// once you find the white tile, check if there is a black piece horizontally, vertically, or diagonally 
+		// next to the white tile 
+		// if the black tile is to the right of the white tile, place the new tile on to the left of the white tile
+		// etc..
+		
+		// used to store the opponent's color 
+		char opponent; 
+		
+		// if its black's turn, opponent is white 
+		if (player == 'B') {
+			opponent = 'W';
+		}
+		// otherwise, its white's turn; opponent is black 
+		else {
+			opponent = 'B';
+		}
+		
+		rows: for (int i = 1; i < 7; i++) {
+			for (int j = 1; j < 7; j++) {
+				// search the board for a tile with opponent's color on it 
+				if (board[i][j] == opponent) {
+					
+					// check diagonal up-left for blank tile 
+					// checkForTile(OthelloGameBoard b, char targetTile, char opponent, int row, int col, int dirRow, int dirCol)
+					if (checkForTile(this, '0', opponent, i, j, -1, -1)) {
+						// check diagonal down-right for player color's tile 
+						if (checkForTile(this, player, opponent, i, j, 1, 1)) {
+							// if found, player can play their color in diagonal up-left 
+							// generateState(OthelloGameBoard b, char player, int row, int col, int dirRow, int dirCol)
+							// generate this state and add it to the list of all possible moves 
+							states.add(generateState(this, player, i, j, -1, -1));
+						}
+					}
+					
+					// check up for blank tile 
+					// checkForTile(OthelloGameBoard b, char targetTile, char opponent, int row, int col, int dirRow, int dirCol)
+					if (checkForTile(this, '0', opponent, i, j, -1, 0)) {
+						// check down for player color's tile 
+						if (checkForTile(this, player, opponent, i, j, 1, 0)) {
+							states.add(generateState(this, player, i, j, -1, 0));
+						}
+					}
+					
+					// check up-right
+					if (checkForTile(this, '0', opponent, i, j, -1, 1)) {
+						// check down-left for player  color's tile
+						if (checkForTile(this, player, opponent, i, j, 1, -1)) {
+							states.add(generateState(this, player, i, j, -1, 1));
+						}
+					}
+					
+					// check right
+					if (checkForTile(this, '0', opponent, i, j, 0, 1)) {
+						// check left for player color's tile 
+						if (checkForTile(this, player, opponent, i, j, 0, -1)) {
+							states.add(generateState(this, player, i, j, 0, 1));
+						}
+					}
+					
+					// check down-right
+					// checkForTile(OthelloGameBoard b, char targetTile, char opponent, int row, int col, int dirRow, int dirCol)
+					if (checkForTile(this, '0', opponent, i, j, 1, 1)) {
+						// check up-left for player color's tile
+						if (checkForTile(this, player, opponent, i, j, -1, -1)) {
+							states.add(generateState(this, player, i, j, 1, 1));
+						}
+					}
+					
+					// check down
+					if (checkForTile(this, '0', opponent, i, j, 1, 0)) {
+						// check up for player color's tile 
+						if (checkForTile(this, player, opponent, i, j, -1, 0)) {
+							states.add(generateState(this, player, i, j, 1, 0));
+						}
+					}
+					
+					// check down-left
+					if (checkForTile(this, '0', opponent, i, j, 1, -1)) {
+						if (checkForTile(this, player, opponent, i, j, -1, 1)) {
+							states.add(generateState(this, player, i, j, 1, -1));
+						}
+					}
+					
+					// check left 
+					if (checkForTile(this, '0', opponent, i, j, 0, -1)) {
+						if (checkForTile(this, player, opponent, i, j, 0, 1)) {
+							states.add(generateState(this, player, i, j, 0, -1));
+						}
+					}
+				}
+			}
+		}
+		return states;
+	}	
+
+	/*public OthelloGameBoard miniMax(ArrayList<OthelloGameBoard> curMoves){
+		boolean max = true; //min if false
+		OthelloGameBoard bestMove;
+		for(int i=0; i<curMoves.size(); i++){
+			if(max){
+				int val = (int)Double.NEGATIVE_INFINITY;
+				
+			}
+			else{
+				int val = (int)Double.POSITIVE_INFINITY;
+				
+			}
+		}
+		return bestMove;
+	}*/
+
+	public int miniMax(OthelloGameBoard curBoard, int maxDepth, char startingPlayer){
+		return miniMax(curBoard, maxDepth, startingPlayer, startingPlayer);
+		//return miniMax(curBoard, startingPlayer, startingPlayer);
+	}
+
+	private int miniMax(OthelloGameBoard curBoard, int depth, char original, char current){
+		if (curBoard.gameOver() || depth == 0) {
+			return curBoard.heuristic();
+		}
+		else {
+			ArrayList<OthelloGameBoard> nextMoves = curBoard.generateAllPossibleMoves(current);
+
+			if(original == current){ //maximizing
+				int val = (int)Double.NEGATIVE_INFINITY;
+				for(int i=0; i<nextMoves.size(); i++){
+					val = Math.max(val, miniMax(nextMoves.get(i), depth-1, original, oppositePlayer(current)));
+				}
+				return val;
+			}
+			else{ // minimizing
+				int val = (int)Double.POSITIVE_INFINITY;
+				for(int i=0; i<nextMoves.size(); i++){
+					val = Math.min(val, miniMax(nextMoves.get(i), depth-1, original, oppositePlayer(current)));
+				}
+				return val;
+			}
+		}
+	}
+	
+	/*private int miniMax(OthelloGameBoard curBoard, char original, char current){
+		if (curBoard.gameOver()) {
+			return curBoard.heuristic();
+		}
+		else {
+			ArrayList<OthelloGameBoard> nextMoves = curBoard.generateAllPossibleMoves(current);
+
+			if(original == current){ //maximizing
+				int val = (int)Double.NEGATIVE_INFINITY;
+				for(int i=0; i<nextMoves.size(); i++){
+					val = Math.max(val, miniMax(nextMoves.get(i), original, oppositePlayer(current)));
+				}
+				return val;
+			}
+			else{ // minimizing
+				int val = (int)Double.POSITIVE_INFINITY;
+				for(int i=0; i<nextMoves.size(); i++){
+					val = Math.min(val, miniMax(nextMoves.get(i), original, oppositePlayer(current)));
+				}
+				return val;
+			}
+		}
+	}*/
+	
+	public char oppositePlayer(char player) {
+		char opponent;
+		// if its black's turn, opponent is white 
+		if (player == 'B') {
+			opponent = 'W';
+		}
+		// otherwise, its white's turn; opponent is black 
+		else {
+			opponent = 'B';
+		}
+		return opponent;
+	}
+
+	public int heuristic(){
+		return 0;
 	}
 	
 	public OthelloGameBoard humanPlayerTurn(char turn) {

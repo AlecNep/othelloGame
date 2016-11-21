@@ -30,7 +30,7 @@ public class Driver {
 			
 			OthelloPlayer player = b.getPlayer(turn);
 			
-			PriorityQueue<OthelloGameBoard> moves = b.generateAllPossibleMoves(turn);
+			PriorityQueue<OthelloGameBoard> moves = b.greedyGenerateAllPossibleMoves(turn);
 			
 			if (!moves.isEmpty()) {
 				if (player.isHuman) {
