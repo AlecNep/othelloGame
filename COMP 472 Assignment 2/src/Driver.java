@@ -38,7 +38,8 @@ public class Driver {
 					b = new OthelloGameBoard(b.humanPlayerTurn(turn));					
 				}
 				else {
-					b = new OthelloGameBoard(moves.poll());
+					//b = new OthelloGameBoard(moves.poll());
+					b = new OthelloGameBoard(b.miniMax(b, 5, turn));
 				}
 				b.printBoard();
 				System.out.println("Number of reversals: " + b.numberOfReveralsHeuristic);
@@ -57,5 +58,23 @@ public class Driver {
 				turn = 'B';
 			}			
 		}
+		System.out.println("Game over!");
+		/*
+		if (countWhite > countBlack) {
+			System.out.println("White wins!");
+			System.out.println("White count: " + countWhite);
+			System.out.println("Black count: " + countBlack);
+		}
+		else if (countWhite < countBlack) {
+			System.out.println("Black wins!");
+			System.out.println("White count: " + countWhite);
+			System.out.println("Black count: " + countBlack);
+		}
+		else {
+			System.out.println("Tie!");
+			System.out.println("White count: " + countWhite);
+			System.out.println("Black count: " + countBlack);
+		}
+		*/
 	}
 }

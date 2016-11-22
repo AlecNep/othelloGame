@@ -75,21 +75,6 @@ public class OthelloGameBoard {
 					}
 				}
 			}
-			if (countWhite > countBlack) {
-				System.out.println("White wins!");
-				System.out.println("White count: " + countWhite);
-				System.out.println("Black count: " + countBlack);
-			}
-			else if (countWhite < countBlack) {
-				System.out.println("Black wins!");
-				System.out.println("White count: " + countWhite);
-				System.out.println("Black count: " + countBlack);
-			}
-			else {
-				System.out.println("Tie!");
-				System.out.println("White count: " + countWhite);
-				System.out.println("Black count: " + countBlack);
-			}
 			return true;
 		}
 		else {
@@ -129,6 +114,10 @@ public class OthelloGameBoard {
 		row += dirRow;
 		col += dirCol;
 		
+		if (row < 0 || col < 0 || row > 7 || col > 7) {
+			return false;
+		}
+		
 		// if the tile is the target tile, return true 
 		if (b.board[row][col] == targetTile) {
 			return true;
@@ -136,7 +125,7 @@ public class OthelloGameBoard {
 		
 		// if tile belongs to your opponent, and you are not in the first row, first col, last row, last col  
 		// recursively check the next tile that is in the specified direction
-		else if (b.board[row][col] == opponent && row != 0 && col != 0 && row != 7 && col != 7) {
+		else if (b.board[row][col] == opponent) {
 			return checkForTile(b, targetTile, opponent, row, col, dirRow, dirCol);
 		}
 		
@@ -839,22 +828,6 @@ public ArrayList<OthelloGameBoard> generateAllPossibleMoves(char player) {
 		return states;
 	}	
 
-	/*public OthelloGameBoard miniMax(ArrayList<OthelloGameBoard> curMoves){
-		boolean max = true; //min if false
-		OthelloGameBoard bestMove;
-		for(int i=0; i<curMoves.size(); i++){
-			if(max){
-				int val = (int)Double.NEGATIVE_INFINITY;
-				
-			}
-			else{
-				int val = (int)Double.POSITIVE_INFINITY;
-				
-			}
-		}
-		return bestMove;
-	}*/
-
 	public OthelloGameBoard miniMax(OthelloGameBoard curBoard, int maxDepth, char startingPlayer){
 		return miniMax(curBoard, maxDepth, startingPlayer, startingPlayer);
 		//return miniMax(curBoard, startingPlayer, startingPlayer);
@@ -874,8 +847,8 @@ public ArrayList<OthelloGameBoard> generateAllPossibleMoves(char player) {
 				int val = (int)Double.NEGATIVE_INFINITY;
 				for(int i=0; i<nextMoves.size(); i++){
 					nextBoard = miniMax(nextMoves.get(i), depth-1, original, oppositePlayer(current));
-					if(nextBoard.heuristic() > val){
-						bestBoard = nextBoard;
+					if(nextBoard.heuristic(original, current) > val){
+						bestBoard = nextMoves.get(i);
 						
 					}
 					//val = Math.max(val, miniMax(nextMoves.get(i), depth-1, original, oppositePlayer(current)));
@@ -886,38 +859,14 @@ public ArrayList<OthelloGameBoard> generateAllPossibleMoves(char player) {
 				int val = (int)Double.POSITIVE_INFINITY;
 				for(int i=0; i<nextMoves.size(); i++){
 					nextBoard = miniMax(nextMoves.get(i), depth-1, original, oppositePlayer(current));
-					if(nextBoard.heuristic() < val){
-						bestBoard = nextBoard;
+					if(nextBoard.heuristic(original, current) < val){
+						bestBoard = nextMoves.get(i);
 						
 					}				}
 				return bestBoard;
 			}
 		}
 	}
-	
-	/*private int miniMax(OthelloGameBoard curBoard, char original, char current){
-		if (curBoard.gameOver()) {
-			return curBoard.heuristic();
-		}
-		else {
-			ArrayList<OthelloGameBoard> nextMoves = curBoard.generateAllPossibleMoves(current);
-
-			if(original == current){ //maximizing
-				int val = (int)Double.NEGATIVE_INFINITY;
-				for(int i=0; i<nextMoves.size(); i++){
-					val = Math.max(val, miniMax(nextMoves.get(i), original, oppositePlayer(current)));
-				}
-				return val;
-			}
-			else{ // minimizing
-				int val = (int)Double.POSITIVE_INFINITY;
-				for(int i=0; i<nextMoves.size(); i++){
-					val = Math.min(val, miniMax(nextMoves.get(i), original, oppositePlayer(current)));
-				}
-				return val;
-			}
-		}
-	}*/
 	
 	public char oppositePlayer(char player) {
 		char opponent;
@@ -932,9 +881,41 @@ public ArrayList<OthelloGameBoard> generateAllPossibleMoves(char player) {
 		return opponent;
 	}
 
-	public int heuristic(){
+	public int heuristic(char maxPlayer, char current){
+		int heuristic = 0;
+		char opposite = oppositePlayer(current);
+		int currentCoinCount = 0;
+		int oppositeCoinCount = 0;
+		int coinDiff = 0;
+		for (int i = 0; i < 8; i++) {
+			for (int j = 0; j < 8; j++) {
+				if (board[i][j] == current) {
+					currentCoinCount++;
+				}
+				else if (board[i][j] == opposite) {
+					oppositeCoinCount++;
+				}
+			}
+		}
+		//the difference in coins between the max player and the min player.
+		if (maxPlayer == current) { // max player 
+			coinDiff = currentCoinCount - oppositeCoinCount;
+		}
+		else { // min player 
+			coinDiff = oppositeCoinCount - currentCoinCount;
+		}
 		
-		return 0;
+		//the relative difference between the number of possible moves for the max and the min players
+		//with the intent of restricting the opponent’s mobility and increasing one’s own mobility
+		
+		//corners captured 
+		
+		//stability: Stable coins are coins which cannot be flanked at any point of time in the game from the given state. 
+		//Unstable coins are those that could be flanked in the very next move. Semi-stable coins are those that could 
+		//potentially be flanked at some point in the future, but they do not face the danger of being flanked immediately 
+		//in the next move.
+		heuristic = coinDiff;
+		return heuristic;
 	}
 	
 	public OthelloGameBoard humanPlayerTurn(char turn) {
