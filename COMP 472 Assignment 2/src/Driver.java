@@ -12,6 +12,8 @@ public class Driver {
 		
 		OthelloGameBoard b = new OthelloGameBoard(player1, player2);
 		b.printBoard();
+		System.out.println("Count white: "  + b.countWhite);
+		System.out.println("Count black: "  + b.countBlack);
 		System.out.println();
 		
 		// keeps track of whose turn it is 
@@ -39,9 +41,23 @@ public class Driver {
 				}
 				else {
 					//b = new OthelloGameBoard(moves.poll());
+					long lStartTime = System.currentTimeMillis();
 					b = new OthelloGameBoard(b.miniMax(b, 5, turn));
+			        long lEndTime = System.currentTimeMillis();
+			        long output = lEndTime - lStartTime;
+			        if (output < 1000) {
+				        System.out.println("Elapsed time in milliseconds (minimax): " + output);
+			        }
+			        else {
+			        	double outDbl = (double) output;			        	
+				        System.out.println("Elapsed time in seconds (minimax): " + (outDbl / 1000));
+			        }
+					b.heuristic(turn, turn);
 				}
 				b.printBoard();
+				//System.out.println("Heuristic: " + b.heuristic);
+				System.out.println("Count white: "  + b.countWhite);
+				System.out.println("Count black: "  + b.countBlack);
 				System.out.println("Number of reversals: " + b.numberOfReveralsHeuristic);
 				System.out.println(turn + " tile placed at: (" + (b.tileXPlayed + 1) + ", " + (b.tileYPlayed + 1) + ")");
 				System.out.println();	

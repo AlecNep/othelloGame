@@ -12,6 +12,9 @@ public class OthelloGameBoard {
 	public int tileYPlayed;
 	public OthelloPlayer player1;
 	public OthelloPlayer player2;
+	public int countWhite; // count of white tiles
+	public int countBlack; // count of black tiles
+	public int heuristic; 
 	private Scanner kb;
 	
 	public OthelloGameBoard(OthelloPlayer player1, OthelloPlayer player2) {
@@ -31,6 +34,9 @@ public class OthelloGameBoard {
 		numberOfReveralsHeuristic = 0;
 		this.player1 = new OthelloPlayer(player1);
 		this.player2 = new OthelloPlayer(player2);
+		countWhite = 2;
+		countBlack = 2;
+		heuristic = 0;
 	}
 	
 	public OthelloGameBoard(OthelloGameBoard b) {
@@ -45,6 +51,9 @@ public class OthelloGameBoard {
 		player2 = new OthelloPlayer(b.player2);
 		tileXPlayed = b.tileXPlayed;
 		tileYPlayed = b.tileYPlayed;
+		countWhite = b.countWhite;
+		countBlack = b.countBlack;
+		heuristic = b.heuristic;
 	}
 	
 	public OthelloPlayer getPlayer(char turn) {
@@ -63,18 +72,6 @@ public class OthelloGameBoard {
 		
 		if (blackMoves.size() == 0 && whiteMoves.size() == 0) {
 			// no possible moves left - count number of tiles and declare the winner
-			int countWhite = 0;
-			int countBlack = 0;
-			for (int i = 0; i < 8; i++) {
-				for (int j = 0; j < 8; j++) {
-					if (board[i][j] == 'W') {
-						countWhite++;
-					}
-					else if (board[i][j] == 'B') {
-						countBlack++;
-					}
-				}
-			}
 			return true;
 		}
 		else {
@@ -135,6 +132,24 @@ public class OthelloGameBoard {
 		}
 	}
 	
+	public void incrementCount(char player) {
+		if (player == 'W') {
+			countWhite++;
+		}
+		else {
+			countBlack++;
+		}
+	}
+	
+	public void decrementCount(char opponent) {
+		if (opponent == 'W') {
+			countWhite--;
+		}
+		else {
+			countBlack--;
+		}
+	}
+	
 	public OthelloGameBoard placePlayerTile(char player, int row, int col, int numberOfReveralsHeuristic) {
 		char opponent;
 		if (player == 'B') {
@@ -151,7 +166,7 @@ public class OthelloGameBoard {
 		int dirRow;
 		int dirCol;
 		newState.board[row][col] = player; 
-		//newState.numberOfReveralsHeuristic++;
+		newState.incrementCount(player);
 		newState.tileXPlayed = row;
 		newState.tileYPlayed = col;
 				
@@ -174,6 +189,8 @@ public class OthelloGameBoard {
 					else {
 						newState.board[row][col] = player;
 						newState.numberOfReveralsHeuristic++;
+						newState.incrementCount(player);
+						newState.decrementCount(opponent);
 					}
 				}
 				row = newState.tileXPlayed;
@@ -199,6 +216,8 @@ public class OthelloGameBoard {
 					else {
 						newState.board[row][col] = player;
 						newState.numberOfReveralsHeuristic++;
+						newState.incrementCount(player);
+						newState.decrementCount(opponent);
 					}
 				}
 				row = newState.tileXPlayed;
@@ -224,6 +243,8 @@ public class OthelloGameBoard {
 					else {
 						newState.board[row][col] = player;
 						newState.numberOfReveralsHeuristic++;
+						newState.incrementCount(player);
+						newState.decrementCount(opponent);
 					}
 				}
 				row = newState.tileXPlayed;
@@ -249,6 +270,8 @@ public class OthelloGameBoard {
 					else {
 						newState.board[row][col] = player;
 						newState.numberOfReveralsHeuristic++;
+						newState.incrementCount(player);
+						newState.decrementCount(opponent);
 					}
 				}
 				row = newState.tileXPlayed;
@@ -274,6 +297,8 @@ public class OthelloGameBoard {
 					else {
 						newState.board[row][col] = player;
 						newState.numberOfReveralsHeuristic++;
+						newState.incrementCount(player);
+						newState.decrementCount(opponent);
 					}
 				}
 				row = newState.tileXPlayed;
@@ -299,6 +324,8 @@ public class OthelloGameBoard {
 					else {
 						newState.board[row][col] = player;
 						newState.numberOfReveralsHeuristic++;
+						newState.incrementCount(player);
+						newState.decrementCount(opponent);
 					}
 				}
 				row = newState.tileXPlayed;
@@ -324,6 +351,8 @@ public class OthelloGameBoard {
 					else {
 						newState.board[row][col] = player;
 						newState.numberOfReveralsHeuristic++;
+						newState.incrementCount(player);
+						newState.decrementCount(opponent);
 					}
 				}
 				row = newState.tileXPlayed;
@@ -349,6 +378,8 @@ public class OthelloGameBoard {
 					else {
 						newState.board[row][col] = player;
 						newState.numberOfReveralsHeuristic++;
+						newState.incrementCount(player);
+						newState.decrementCount(opponent);
 					}
 				}
 				row = newState.tileXPlayed;
@@ -386,6 +417,7 @@ public class OthelloGameBoard {
 			if (newState.board[row][col] == '0') {
 				blankFound = true;
 				newState.board[row][col] = player;
+				newState.incrementCount(player);
 				newState.tileXPlayed = row;
 				newState.tileYPlayed = col;
 			}
@@ -405,6 +437,8 @@ public class OthelloGameBoard {
 			else {
 				newState.board[row][col] = player;
 				newState.numberOfReveralsHeuristic++;
+				newState.incrementCount(player);
+				newState.decrementCount(opponent);
 			}
 		}
 		
@@ -434,6 +468,8 @@ public class OthelloGameBoard {
 					else {
 						newState.board[row][col] = player;
 						newState.numberOfReveralsHeuristic++;
+						newState.incrementCount(player);
+						newState.decrementCount(opponent);
 					}
 				}
 				row = newState.tileXPlayed;
@@ -459,6 +495,8 @@ public class OthelloGameBoard {
 					else {
 						newState.board[row][col] = player;
 						newState.numberOfReveralsHeuristic++;
+						newState.incrementCount(player);
+						newState.decrementCount(opponent);
 					}
 				}
 				row = newState.tileXPlayed;
@@ -484,6 +522,8 @@ public class OthelloGameBoard {
 					else {
 						newState.board[row][col] = player;
 						newState.numberOfReveralsHeuristic++;
+						newState.incrementCount(player);
+						newState.decrementCount(opponent);
 					}
 				}
 				row = newState.tileXPlayed;
@@ -509,6 +549,8 @@ public class OthelloGameBoard {
 					else {
 						newState.board[row][col] = player;
 						newState.numberOfReveralsHeuristic++;
+						newState.incrementCount(player);
+						newState.decrementCount(opponent);
 					}
 				}
 				row = newState.tileXPlayed;
@@ -534,6 +576,8 @@ public class OthelloGameBoard {
 					else {
 						newState.board[row][col] = player;
 						newState.numberOfReveralsHeuristic++;
+						newState.incrementCount(player);
+						newState.decrementCount(opponent);
 					}
 				}
 				row = newState.tileXPlayed;
@@ -559,6 +603,8 @@ public class OthelloGameBoard {
 					else {
 						newState.board[row][col] = player;
 						newState.numberOfReveralsHeuristic++;
+						newState.incrementCount(player);
+						newState.decrementCount(opponent);
 					}
 				}
 				row = newState.tileXPlayed;
@@ -584,6 +630,8 @@ public class OthelloGameBoard {
 					else {
 						newState.board[row][col] = player;
 						newState.numberOfReveralsHeuristic++;
+						newState.incrementCount(player);
+						newState.decrementCount(opponent);
 					}
 				}
 				row = newState.tileXPlayed;
@@ -609,6 +657,8 @@ public class OthelloGameBoard {
 					else {
 						newState.board[row][col] = player;
 						newState.numberOfReveralsHeuristic++;
+						newState.incrementCount(player);
+						newState.decrementCount(opponent);
 					}
 				}
 				row = newState.tileXPlayed;
@@ -829,13 +879,13 @@ public ArrayList<OthelloGameBoard> generateAllPossibleMoves(char player) {
 	}	
 
 	public OthelloGameBoard miniMax(OthelloGameBoard curBoard, int maxDepth, char startingPlayer){
-		return miniMax(curBoard, maxDepth, startingPlayer, startingPlayer);
+		return miniMax(curBoard, maxDepth, startingPlayer, startingPlayer, (int) Double.NEGATIVE_INFINITY, (int) Double.POSITIVE_INFINITY);
 		//return miniMax(curBoard, startingPlayer, startingPlayer);
 	}
 
-	private OthelloGameBoard miniMax(OthelloGameBoard curBoard, int depth, char original, char current){
+	private OthelloGameBoard miniMax(OthelloGameBoard curBoard, int depth, char original, char current, int alpha, int beta){
 		ArrayList<OthelloGameBoard> nextMoves = curBoard.generateAllPossibleMoves(current);
-		if (curBoard.gameOver() || depth == 0 || nextMoves.isEmpty()) {
+		if (/*curBoard.gameOver() ||*/ depth == 0 || nextMoves.isEmpty()) {
 			return curBoard;
 		}
 		else {
@@ -846,10 +896,15 @@ public ArrayList<OthelloGameBoard> generateAllPossibleMoves(char player) {
 			if(original == current){ //maximizing
 				int val = (int)Double.NEGATIVE_INFINITY;
 				for(int i=0; i<nextMoves.size(); i++){
-					nextBoard = miniMax(nextMoves.get(i), depth-1, original, oppositePlayer(current));
+					nextBoard = miniMax(nextMoves.get(i), depth-1, original, oppositePlayer(current), alpha, beta);
 					if(nextBoard.heuristic(original, current) > val){
 						bestBoard = nextMoves.get(i);
-						
+						bestBoard.heuristic = nextBoard.heuristic;
+						val = bestBoard.heuristic;
+						alpha = Math.max(alpha, val);
+						if (beta <= alpha) {
+							break;
+						}
 					}
 					//val = Math.max(val, miniMax(nextMoves.get(i), depth-1, original, oppositePlayer(current)));
 				}
@@ -858,11 +913,17 @@ public ArrayList<OthelloGameBoard> generateAllPossibleMoves(char player) {
 			else{ //minimizing
 				int val = (int)Double.POSITIVE_INFINITY;
 				for(int i=0; i<nextMoves.size(); i++){
-					nextBoard = miniMax(nextMoves.get(i), depth-1, original, oppositePlayer(current));
+					nextBoard = miniMax(nextMoves.get(i), depth-1, original, oppositePlayer(current), alpha, beta);
 					if(nextBoard.heuristic(original, current) < val){
 						bestBoard = nextMoves.get(i);
-						
-					}				}
+						bestBoard.heuristic = nextBoard.heuristic;
+						val = bestBoard.heuristic;
+						beta = Math.min(beta, val);
+						if (beta <= alpha) {
+							break;
+						}
+					}				
+				}
 				return bestBoard;
 			}
 		}
@@ -884,37 +945,92 @@ public ArrayList<OthelloGameBoard> generateAllPossibleMoves(char player) {
 	public int heuristic(char maxPlayer, char current){
 		int heuristic = 0;
 		char opposite = oppositePlayer(current);
-		int currentCoinCount = 0;
-		int oppositeCoinCount = 0;
 		int coinDiff = 0;
-		for (int i = 0; i < 8; i++) {
-			for (int j = 0; j < 8; j++) {
-				if (board[i][j] == current) {
-					currentCoinCount++;
-				}
-				else if (board[i][j] == opposite) {
-					oppositeCoinCount++;
-				}
-			}
-		}
+		int cornersCaptured = 0;
+		int edgesCaptured = 0;
+
 		//the difference in coins between the max player and the min player.
 		if (maxPlayer == current) { // max player 
-			coinDiff = currentCoinCount - oppositeCoinCount;
+			if (current == 'W') {
+				coinDiff = countWhite - countBlack;
+			}
+			else {
+				coinDiff = countBlack - countWhite;
+			}
 		}
 		else { // min player 
-			coinDiff = oppositeCoinCount - currentCoinCount;
+			if (current == 'W') {
+				coinDiff = countBlack - countWhite;
+			}
+			else {
+				coinDiff = countWhite - countBlack;
+			}
+		}
+		
+		//corners captured 
+		if (board[0][0] == current) {
+			cornersCaptured += 100;
+		}
+		else if (board[0][0] == opposite) {
+			cornersCaptured -= 100;
+		}
+		if (board[0][7] == current) {
+			cornersCaptured += 100;
+		}
+		else if (board[0][7] == opposite) {
+			cornersCaptured -= 100;
+		}
+		if (board[7][0] == current) {
+			cornersCaptured += 100;
+		}
+		else if (board[7][0] == opposite) {
+			cornersCaptured -= 100;
+		}
+		if (board[7][7] == current) {
+			cornersCaptured += 100;
+		}
+		else if (board[7][7] == opposite) {
+			cornersCaptured -= 100;
+		}
+		
+		// edges captured
+		for (int j = 1; j < 7; j++) {
+			// check first row, last row, first col, last col 
+			if (board[0][j] == current) {
+				edgesCaptured += 10;
+			}
+			else if (board[0][j] == opposite) {
+				edgesCaptured -= 10;
+			}
+			if (board[7][j] == current) {
+				edgesCaptured += 10;
+			}
+			else if (board[7][j] == opposite) {
+				edgesCaptured -= 10;
+			}
+			if (board[j][0] == current) {
+				edgesCaptured += 10;
+			}
+			else if (board[j][0] == opposite) {
+				edgesCaptured -= 10;
+			}
+			if (board[j][7] == current) {
+				edgesCaptured += 10;
+			}
+			else if (board[j][7] == opposite) {
+				edgesCaptured -= 10;
+			}
 		}
 		
 		//the relative difference between the number of possible moves for the max and the min players
 		//with the intent of restricting the opponent’s mobility and increasing one’s own mobility
-		
-		//corners captured 
-		
+				
 		//stability: Stable coins are coins which cannot be flanked at any point of time in the game from the given state. 
 		//Unstable coins are those that could be flanked in the very next move. Semi-stable coins are those that could 
 		//potentially be flanked at some point in the future, but they do not face the danger of being flanked immediately 
 		//in the next move.
-		heuristic = coinDiff;
+		heuristic = coinDiff + cornersCaptured + edgesCaptured;
+		this.heuristic = heuristic;
 		return heuristic;
 	}
 	
