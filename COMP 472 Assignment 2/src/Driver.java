@@ -1,14 +1,49 @@
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.PriorityQueue;
+import java.util.Scanner;
 
 public class Driver {
 	public static void main(String[] args) {
 		// initialize the two players
-		// public OthelloPlayer(boolean human, char color)
-		// human player
-		OthelloPlayer player1 = new OthelloPlayer(false, 'B');
-		// AI player 
-		OthelloPlayer player2 = new OthelloPlayer(true, 'W');
+		Scanner kb = new Scanner(System.in);
+		int choice = 0;
+		OthelloPlayer player1;
+		OthelloPlayer player2;
+		
+		System.out.println("Black player: Human or AI?");		
+		System.out.println("Enter 1 for Human");
+		System.out.println("Enter 2 for AI");
+		choice = kb.nextInt();
+		
+		if (choice == 2) {
+			System.out.println("What heuristic do you want to use? ");
+			System.out.println("Enter 1 for greedy algorithm ");
+			System.out.println("Enter 2 for Michael's heuristic ");
+			System.out.println("Enter 3 for Alec's heuristic ");	
+			choice = kb.nextInt();
+			player1 = new OthelloPlayer(false, 'B', choice);
+		}
+		else {
+			player1 = new OthelloPlayer(true, 'B');
+		}
+		
+		System.out.println("White player: Human or AI?");		
+		System.out.println("Enter 1 for Human");
+		System.out.println("Enter 2 for AI");
+		choice = kb.nextInt();
+		
+		if (choice == 2) {
+			System.out.println("What heuristic do you want to use? ");
+			System.out.println("Enter 1 for greedy algorithm ");
+			System.out.println("Enter 2 for Michael's heuristic ");
+			System.out.println("Enter 3 for Alec's heuristic ");	
+			choice = kb.nextInt();
+			player2 = new OthelloPlayer(false, 'W', choice);
+		}
+		else {
+			player2 = new OthelloPlayer(true, 'W');
+		}
 		
 		OthelloGameBoard b = new OthelloGameBoard(player1, player2);
 		b.printBoard();
@@ -40,19 +75,25 @@ public class Driver {
 					b = new OthelloGameBoard(b.humanPlayerTurn(turn));					
 				}
 				else {
-					//b = new OthelloGameBoard(moves.poll());
-					long lStartTime = System.currentTimeMillis();
-					b = new OthelloGameBoard(b.miniMax(b, 5, turn));
-			        long lEndTime = System.currentTimeMillis();
-			        long output = lEndTime - lStartTime;
-			        if (output < 1000) {
-				        System.out.println("Elapsed time in milliseconds (minimax): " + output);
-			        }
-			        else {
-			        	double outDbl = (double) output;			        	
-				        System.out.println("Elapsed time in seconds (minimax): " + (outDbl / 1000));
-			        }
-					b.heuristic(turn, turn);
+					if (player.heuristic == 1) { // greedy algorithm
+						System.out.println("Greedy Algorithm");
+						b = new OthelloGameBoard(moves.poll());
+					}
+					else {
+						long lStartTime = System.currentTimeMillis();
+						b = new OthelloGameBoard(b.miniMax(b, 4, turn, player.heuristic));
+				        long lEndTime = System.currentTimeMillis();
+				        long output = lEndTime - lStartTime;
+				        if (output < 1000) {
+					        System.out.println("Elapsed time in milliseconds (minimax): " + output);
+				        }
+				        else {
+				        	double outDbl = (double) output;			        	
+					        System.out.println("Elapsed time in seconds (minimax): " + (outDbl / 1000));
+				        }
+						b.heuristic(turn, turn, player.heuristic);
+						System.out.println("Heuristic: " + b.heuristic);
+					}
 				}
 				b.printBoard();
 				//System.out.println("Heuristic: " + b.heuristic);
@@ -92,5 +133,10 @@ public class Driver {
 			System.out.println("Black count: " + countBlack);
 		}
 		*/
+	}
+
+	private static Scanner Scanner(InputStream in) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

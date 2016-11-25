@@ -776,6 +776,108 @@ public class OthelloGameBoard {
 		return states;
 	}
 	
+public int getNumberOfAvailableMoves(char player) {
+		
+      	// stores the open list for Best-First Search and A* as a priority queue
+        ArrayList<OthelloGameBoard> states = new ArrayList<OthelloGameBoard>();
+		
+		// black always has the first move
+		// algorithm: scan the board sequentially for a white tile		
+		// once you find the white tile, check if there is a black piece horizontally, vertically, or diagonally 
+		// next to the white tile 
+		// if the black tile is to the right of the white tile, place the new tile on to the left of the white tile
+		// etc..
+		
+		// used to store the opponent's color 
+		char opponent; 
+		
+		// if its black's turn, opponent is white 
+		if (player == 'B') {
+			opponent = 'W';
+		}
+		// otherwise, its white's turn; opponent is black 
+		else {
+			opponent = 'B';
+		}
+		
+		rows: for (int i = 1; i < 7; i++) {
+			for (int j = 1; j < 7; j++) {
+				// search the board for a tile with opponent's color on it 
+				if (board[i][j] == opponent) {
+					
+					// check diagonal up-left for blank tile 
+					// checkForTile(OthelloGameBoard b, char targetTile, char opponent, int row, int col, int dirRow, int dirCol)
+					if (checkForTile(this, '0', opponent, i, j, -1, -1)) {
+						// check diagonal down-right for player color's tile 
+						if (checkForTile(this, player, opponent, i, j, 1, 1)) {
+							// if found, player can play their color in diagonal up-left 
+							// generateState(OthelloGameBoard b, char player, int row, int col, int dirRow, int dirCol)
+							// generate this state and add it to the list of all possible moves 
+							states.add(generateState(this, player, i, j, -1, -1));
+						}
+					}
+					
+					// check up for blank tile 
+					// checkForTile(OthelloGameBoard b, char targetTile, char opponent, int row, int col, int dirRow, int dirCol)
+					if (checkForTile(this, '0', opponent, i, j, -1, 0)) {
+						// check down for player color's tile 
+						if (checkForTile(this, player, opponent, i, j, 1, 0)) {
+							states.add(generateState(this, player, i, j, -1, 0));
+						}
+					}
+					
+					// check up-right
+					if (checkForTile(this, '0', opponent, i, j, -1, 1)) {
+						// check down-left for player  color's tile
+						if (checkForTile(this, player, opponent, i, j, 1, -1)) {
+							states.add(generateState(this, player, i, j, -1, 1));
+						}
+					}
+					
+					// check right
+					if (checkForTile(this, '0', opponent, i, j, 0, 1)) {
+						// check left for player color's tile 
+						if (checkForTile(this, player, opponent, i, j, 0, -1)) {
+							states.add(generateState(this, player, i, j, 0, 1));
+						}
+					}
+					
+					// check down-right
+					// checkForTile(OthelloGameBoard b, char targetTile, char opponent, int row, int col, int dirRow, int dirCol)
+					if (checkForTile(this, '0', opponent, i, j, 1, 1)) {
+						// check up-left for player color's tile
+						if (checkForTile(this, player, opponent, i, j, -1, -1)) {
+							states.add(generateState(this, player, i, j, 1, 1));
+						}
+					}
+					
+					// check down
+					if (checkForTile(this, '0', opponent, i, j, 1, 0)) {
+						// check up for player color's tile 
+						if (checkForTile(this, player, opponent, i, j, -1, 0)) {
+							states.add(generateState(this, player, i, j, 1, 0));
+						}
+					}
+					
+					// check down-left
+					if (checkForTile(this, '0', opponent, i, j, 1, -1)) {
+						if (checkForTile(this, player, opponent, i, j, -1, 1)) {
+							states.add(generateState(this, player, i, j, 1, -1));
+						}
+					}
+					
+					// check left 
+					if (checkForTile(this, '0', opponent, i, j, 0, -1)) {
+						if (checkForTile(this, player, opponent, i, j, 0, 1)) {
+							states.add(generateState(this, player, i, j, 0, -1));
+						}
+					}
+				}
+			}
+		}
+		return states.size();
+	}		
+	
 public ArrayList<OthelloGameBoard> generateAllPossibleMoves(char player) {
 		
       	// stores the open list for Best-First Search and A* as a priority queue
@@ -878,14 +980,13 @@ public ArrayList<OthelloGameBoard> generateAllPossibleMoves(char player) {
 		return states;
 	}	
 
-	public OthelloGameBoard miniMax(OthelloGameBoard curBoard, int maxDepth, char startingPlayer){
-		return miniMax(curBoard, maxDepth, startingPlayer, startingPlayer, (int) Double.NEGATIVE_INFINITY, (int) Double.POSITIVE_INFINITY);
-		//return miniMax(curBoard, startingPlayer, startingPlayer);
+	public OthelloGameBoard miniMax(OthelloGameBoard curBoard, int maxDepth, char startingPlayer, int heuristicType){
+		return miniMax(curBoard, maxDepth, startingPlayer, startingPlayer, (int) Double.NEGATIVE_INFINITY, (int) Double.POSITIVE_INFINITY, heuristicType);
 	}
 
-	private OthelloGameBoard miniMax(OthelloGameBoard curBoard, int depth, char original, char current, int alpha, int beta){
+	private OthelloGameBoard miniMax(OthelloGameBoard curBoard, int depth, char original, char current, int alpha, int beta, int heuristicType){
 		ArrayList<OthelloGameBoard> nextMoves = curBoard.generateAllPossibleMoves(current);
-		if (/*curBoard.gameOver() ||*/ depth == 0 || nextMoves.isEmpty()) {
+		if (depth == 0 || nextMoves.isEmpty()) {
 			return curBoard;
 		}
 		else {
@@ -896,8 +997,8 @@ public ArrayList<OthelloGameBoard> generateAllPossibleMoves(char player) {
 			if(original == current){ //maximizing
 				int val = (int)Double.NEGATIVE_INFINITY;
 				for(int i=0; i<nextMoves.size(); i++){
-					nextBoard = miniMax(nextMoves.get(i), depth-1, original, oppositePlayer(current), alpha, beta);
-					if(nextBoard.heuristic(original, current) > val){
+					nextBoard = miniMax(nextMoves.get(i), depth-1, original, oppositePlayer(current), alpha, beta, heuristicType);
+					if(nextBoard.heuristic(original, current, heuristicType) > val){
 						bestBoard = nextMoves.get(i);
 						bestBoard.heuristic = nextBoard.heuristic;
 						val = bestBoard.heuristic;
@@ -913,8 +1014,8 @@ public ArrayList<OthelloGameBoard> generateAllPossibleMoves(char player) {
 			else{ //minimizing
 				int val = (int)Double.POSITIVE_INFINITY;
 				for(int i=0; i<nextMoves.size(); i++){
-					nextBoard = miniMax(nextMoves.get(i), depth-1, original, oppositePlayer(current), alpha, beta);
-					if(nextBoard.heuristic(original, current) < val){
+					nextBoard = miniMax(nextMoves.get(i), depth-1, original, oppositePlayer(current), alpha, beta, heuristicType);
+					if(nextBoard.heuristic(original, current, heuristicType) < val){
 						bestBoard = nextMoves.get(i);
 						bestBoard.heuristic = nextBoard.heuristic;
 						val = bestBoard.heuristic;
@@ -942,7 +1043,21 @@ public ArrayList<OthelloGameBoard> generateAllPossibleMoves(char player) {
 		return opponent;
 	}
 
-	public int heuristic(char maxPlayer, char current){
+	public int heuristic(char maxPlayer, char current, int heuristicType){
+		if (heuristicType == 2) {
+			return michaelHeuristic(maxPlayer, current);
+		}
+		else {
+			return alecHeuristic(maxPlayer, current);
+		}
+	}
+	
+	public int alecHeuristic(char maxPlayer, char current) {
+		//TODO
+		return 0;
+	}
+	
+	public int michaelHeuristic(char maxPlayer, char current) {
 		int heuristic = 0;
 		char opposite = oppositePlayer(current);
 		int coinDiff = 0;
@@ -1023,13 +1138,11 @@ public ArrayList<OthelloGameBoard> generateAllPossibleMoves(char player) {
 		}
 		
 		//the relative difference between the number of possible moves for the max and the min players
-		//with the intent of restricting the opponent’s mobility and increasing one’s own mobility
-				
-		//stability: Stable coins are coins which cannot be flanked at any point of time in the game from the given state. 
-		//Unstable coins are those that could be flanked in the very next move. Semi-stable coins are those that could 
-		//potentially be flanked at some point in the future, but they do not face the danger of being flanked immediately 
-		//in the next move.
-		heuristic = coinDiff + cornersCaptured + edgesCaptured;
+		int currentMoves = getNumberOfAvailableMoves(current);
+		int oppositeMoves = getNumberOfAvailableMoves(opposite);
+		int moveDiff = currentMoves - oppositeMoves;
+		
+		heuristic = coinDiff + cornersCaptured + edgesCaptured + moveDiff;
 		this.heuristic = heuristic;
 		return heuristic;
 	}
