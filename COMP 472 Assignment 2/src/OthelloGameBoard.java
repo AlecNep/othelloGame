@@ -15,6 +15,16 @@ public class OthelloGameBoard {
 	public int countWhite; // count of white tiles
 	public int countBlack; // count of black tiles
 	public int heuristic; 
+	private int[][] staticWeightBoard = new int[][]{
+		{100, -75, 50, 50, 50, 50, -75, 100},
+		{-75 -100, -25, -25, -25, -25, -100, -75},
+		{50, -25, 25, 0, 0, 25, -25, 50},
+		{50, -25, 0, 25, 25, 0, -25, 50},
+		{50, -25, 0, 25, 25, 0, -25, 50},
+		{50, -25, 25, 0, 0, 25, -25, 50},
+		{-75 -100, -25, -25, -25, -25, -100, -75},
+		{100, -75, 50, 50, 50, 50, -75, 100},
+	}; //hardcoded to boost performance time
 	private Scanner kb;
 	
 	public OthelloGameBoard(OthelloPlayer player1, OthelloPlayer player2) {
@@ -993,7 +1003,6 @@ public ArrayList<OthelloGameBoard> generateAllPossibleMoves(char player) {
 			OthelloGameBoard bestBoard = nextMoves.get(0);
 			OthelloGameBoard nextBoard;
 			
-			
 			if(original == current){ //maximizing
 				int val = (int)Double.NEGATIVE_INFINITY;
 				for(int i=0; i<nextMoves.size(); i++){
@@ -1053,8 +1062,35 @@ public ArrayList<OthelloGameBoard> generateAllPossibleMoves(char player) {
 	}
 	
 	public int alecHeuristic(char maxPlayer, char current) {
-		//TODO
-		return 0;
+		//uses static weight board and mobility
+		int finalVal = 0;
+		char opponent = oppositePlayer(current);
+		for(int i=0; i<7; i++){
+			for(int j=0; j<7; j++){
+				if(maxPlayer==current){ //maximizing
+					if(board[i][j]==current){
+						finalVal += staticWeightBoard[i][j];
+					}
+					else if(board[i][j]==opponent){
+						finalVal -= staticWeightBoard[i][j];
+					}
+				}
+				else{ //minimizing
+					if(board[i][j]==current){
+						finalVal -= staticWeightBoard[i][j];
+					}
+					else if(board[i][j]==opponent){
+						finalVal += staticWeightBoard[i][j];
+					}
+				}
+			}
+		}
+		int curMoves = getNumberOfAvailableMoves(current);
+		int oppMoves = -1*getNumberOfAvailableMoves(opponent);
+		int curTiles = 
+		finalVal += oppMoves + curMoves;
+		this.heuristic=finalVal;
+		return finalVal;
 	}
 	
 	public int michaelHeuristic(char maxPlayer, char current) {
